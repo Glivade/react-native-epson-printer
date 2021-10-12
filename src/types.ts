@@ -1,6 +1,10 @@
+export enum InterfaceType {
+  LAN = "LAN",
+  Bluetooth = "Bluetooth"
+}
+
 export interface DiscoverParams {
-  is_network?: boolean;
-  is_bluetooth?: boolean;
+  interface_type: InterfaceType;
 }
 
 export interface PrintParams {
@@ -10,6 +14,7 @@ export interface PrintParams {
 
 export interface PrinterInfo {
   name: string;
+  interface_type: string;
   mac: string;
   target: string;
 }

@@ -3,6 +3,7 @@ import * as React from 'react';
 import {FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {discover, print} from 'react-native-epson-printer';
 import type {PrinterInfo} from "../../src/types";
+import {InterfaceType} from "../../src/types";
 
 export default function App() {
   const [message, setMessage] = React.useState<any>();
@@ -11,36 +12,39 @@ export default function App() {
   const scanNetwork = async () => {
     setMessage("Searching for network printers..")
     try {
-      const printers = await discover({is_network: true})
+      const printers = await discover({interface_type: InterfaceType.LAN})
       if (printers.length === 0) setMessage("No network printers found")
-      else setMessage("Available network Printers:")
+      else setMessage(`${printers.length} network printer(s) found`)
       setPrinters(printers)
     } catch (error) {
-      setMessage(error)
+      // @ts-ignore
+      setMessage(error.toString())
     }
   }
 
   const scanBluetooth = async () => {
     setMessage("Searching for bluetooth printers..")
     try {
-      const printers = await discover({is_bluetooth: true})
+      const printers = await discover({interface_type: InterfaceType.Bluetooth})
       if (printers.length === 0) setMessage("No bluetooth printers found")
-      else setMessage("Available bluetooth Printers:")
+      else setMessage(`${printers.length} bluetooth printer(s) found`)
       setPrinters(printers)
     } catch (error) {
-      setMessage(error)
+      // @ts-ignore
+      setMessage(error.toString())
     }
   }
 
   const sendPrint = async (printer: PrinterInfo) => {
     try {
       const response = await print({
-        printer: {name: printer.name, mac: printer.mac, target: `${printer.target}`},
-        data: "Test Print\n"
+        printer,
+        data: "Test Print"
       })
       setMessage(response)
     } catch (error) {
-      setMessage(error)
+      // @ts-ignore
+      setMessage(error.toString())
     }
   }
 
@@ -58,12 +62,12 @@ export default function App() {
           </View>
         </TouchableOpacity>
       </View>
-      <Text style={styles.message}>{message}</Text>
+      <Text style={styles.message}>Info: {message}</Text>
       <FlatList
         data={printers}
         renderItem={({item}) => {
           return (
-            <TouchableOpacity onPress={() => sendPrint(item)}>
+            <TouchableOpacity key={item.target} onPress={() => sendPrint(item)}>
               <View style={styles.printer}>
                 <Text style={styles.printerName}>{item.name}</Text>
                 <Text style={styles.printerDesc}>{item.target}</Text>
