@@ -1,10 +1,12 @@
 package com.reactnativeepsonprinter
 
 import android.app.Activity
+import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.content.Intent
 import android.os.Handler
 import android.os.Looper
+import com.android.print.sdk.PrinterInstance
 import com.epson.epos2.Epos2Exception
 import com.epson.epos2.discovery.DeviceInfo
 import com.epson.epos2.discovery.Discovery
@@ -49,9 +51,8 @@ class EpsonPrinterModule(reactContext: ReactApplicationContext) :
 
     @ReactMethod
     fun discover(readableMap: ReadableMap, promise: Promise) {
-        val interfaceType = readableMap.getString("interface_type")
-        when {
-            interfaceType == "LAN" -> {
+        when (readableMap.getString("interface_type")) {
+            "LAN" -> {
                 stopNetworkDiscovery()
 
                 val filterOption = FilterOption()
@@ -83,7 +84,7 @@ class EpsonPrinterModule(reactContext: ReactApplicationContext) :
                     promise.reject("Discovery Error", status.toString())
                 }
             }
-            interfaceType == "Bluetooth" -> {
+            "Bluetooth" -> {
                 try {
                     val rxBluetooth = RxBluetooth(reactApplicationContext)
                     if (!rxBluetooth.isBluetoothEnabled) {
@@ -123,27 +124,51 @@ class EpsonPrinterModule(reactContext: ReactApplicationContext) :
 
     @ReactMethod
     fun print(readableMap: ReadableMap, promise: Promise) {
-        val ipAddress = readableMap.getMap("printer")?.getString("target") ?: ""
+        val printer = readableMap.getMap("printer")
+        val interfaceType = printer?.getString("interface_type") ?: ""
+        val target = printer?.getString("target") ?: ""
         val data = readableMap.getString("data") ?: ""
-        disposable.add(Completable.fromAction {
-            val socket = Socket(ipAddress, 9100)
-            socket.getOutputStream().write(PrintUtil.FONT_SIZE_NORMAL)
-            socket.getOutputStream().flush()
-            socket.getOutputStream().write(data.toByteArray())
-            socket.getOutputStream().flush()
-            socket.getOutputStream().write("\n".toByteArray())
-            socket.getOutputStream().flush()
-            socket.getOutputStream().write(PrintUtil.CUT_PAPER)
-            socket.getOutputStream().flush()
-            socket.getOutputStream().close()
-            socket.close()
+        when (interfaceType) {
+            "LAN" -> {
+                disposable.add(Completable.fromAction {
+                    val socket = Socket(target, 9100)
+                    socket.getOutputStream().write(PrintUtil.FONT_SIZE_NORMAL)
+                    socket.getOutputStream().flush()
+                    socket.getOutputStream().write(data.toByteArray())
+                    socket.getOutputStream().flush()
+                    socket.getOutputStream().write("\n".toByteArray())
+                    socket.getOutputStream().flush()
+                    socket.getOutputStream().write(PrintUtil.CUT_PAPER)
+                    socket.getOutputStream().flush()
+                    socket.getOutputStream().close()
+                    socket.close()
+                }
+                    .subscribeOn(Schedulers.io())
+                    .subscribe({
+                        promise.resolve("Print success")
+                    }, {
+                        promise.reject("Print Error", it)
+                    }))
+            }
+            "Bluetooth" -> {
+                val bluetoothDevice = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(target)
+                val printerInstance =
+                    PrinterInstance(reactApplicationContext, bluetoothDevice, null)
+                printerInstance.openConnection()
+                printerInstance.init()
+                if (printerInstance.isConnected) {
+                    printerInstance.sendByteData(PrintUtil.FONT_SIZE_NORMAL)
+                    printerInstance.printText(data)
+                    printerInstance.cutPaper()
+                    promise.resolve("Print success")
+                } else {
+                    promise.reject("Print Error", "Printer not connected")
+                }
+            }
+            else -> {
+                promise.reject("Print Error", "Interface type not supported")
+            }
         }
-            .subscribeOn(Schedulers.io())
-            .subscribe({
-                promise.resolve("Print success")
-            }, {
-                promise.reject("Print Error", it)
-            }))
     }
 }
 
