@@ -18,10 +18,6 @@ const EpsonPrinter = NativeModules.EpsonPrinter
     }
   );
 
-export function multiply(a: number, b: number): Promise<number> {
-  return EpsonPrinter.multiply(a, b);
-}
-
 export function discover(params: DiscoverParams): Promise<PrinterInfo[]> {
   return EpsonPrinter.discover(params);
 }
