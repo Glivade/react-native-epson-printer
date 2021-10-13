@@ -15,6 +15,6 @@ export interface PrintParams {
 export interface PrinterInfo {
   name: string;
   interface_type: string;
-  mac: string;
+  mac_address: string;
   target: string;
 }

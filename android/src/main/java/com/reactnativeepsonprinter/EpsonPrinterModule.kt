@@ -60,10 +60,12 @@ class EpsonPrinterModule(reactContext: ReactApplicationContext) :
                 filterOption.deviceType = Discovery.TYPE_PRINTER
                 try {
                     val deviceInfoList = ArrayList<DeviceInfo>()
-                    Discovery.start(reactApplicationContext, filterOption) {
+                    Discovery.start(reactApplicationContext, filterOption) { deviceInfo ->
                         UiThreadUtil.runOnUiThread {
-                            if (it.target.contains("TCP", true)) {
-                                deviceInfoList.add(it)
+                            if (deviceInfo.target.contains("TCP", true) &&
+                                !deviceInfoList.any { it.ipAddress == deviceInfo.ipAddress }
+                            ) {
+                                deviceInfoList.add(deviceInfo)
                             }
                         }
                     }
@@ -74,7 +76,7 @@ class EpsonPrinterModule(reactContext: ReactApplicationContext) :
                             val printerData = Arguments.createMap()
                             printerData.putString("name", deviceInfo.deviceName)
                             printerData.putString("interface_type", "LAN")
-                            printerData.putString("mac", deviceInfo.macAddress)
+                            printerData.putString("mac_address", deviceInfo.macAddress)
                             printerData.putString("target", deviceInfo.ipAddress)
                             printerArray.pushMap(printerData)
                         }
@@ -95,8 +97,10 @@ class EpsonPrinterModule(reactContext: ReactApplicationContext) :
                         disposable.add(rxBluetooth.observeDevices()
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe {
-                                bluetoothDeviceList.add(it)
+                            .subscribe { bluetoothDevice ->
+                                if (!bluetoothDeviceList.any { it.address == bluetoothDevice.address }) {
+                                    bluetoothDeviceList.add(bluetoothDevice)
+                                }
                             })
                         if (!PermissionUtil.hasLocationPermission(reactApplicationContext)) {
                             promise.reject("Discovery Error", "Please enable Location")
@@ -109,7 +113,7 @@ class EpsonPrinterModule(reactContext: ReactApplicationContext) :
                                     val printerData = Arguments.createMap()
                                     printerData.putString("name", bluetoothDevice.name)
                                     printerData.putString("interface_type", "Bluetooth")
-                                    printerData.putString("mac", bluetoothDevice.address)
+                                    printerData.putString("mac_address", bluetoothDevice.address)
                                     printerData.putString("target", bluetoothDevice.address)
                                     printerArray.pushMap(printerData)
                                 }
