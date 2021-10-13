@@ -6,7 +6,6 @@ import android.bluetooth.BluetoothDevice
 import android.content.Intent
 import android.os.Handler
 import android.os.Looper
-import com.android.print.sdk.PrinterInstance
 import com.epson.epos2.Epos2Exception
 import com.epson.epos2.discovery.DeviceInfo
 import com.epson.epos2.discovery.Discovery
@@ -18,6 +17,8 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import java.net.Socket
+import java.util.*
+import kotlin.collections.ArrayList
 
 class EpsonPrinterModule(reactContext: ReactApplicationContext) :
     ReactContextBaseJavaModule(reactContext), ActivityEventListener {
@@ -88,7 +89,7 @@ class EpsonPrinterModule(reactContext: ReactApplicationContext) :
                 try {
                     val rxBluetooth = RxBluetooth(reactApplicationContext)
                     if (!rxBluetooth.isBluetoothEnabled) {
-                        rxBluetooth.enableBluetooth(currentActivity, 4)
+                        promise.reject("Discovery Error", "Please enable Bluetooth")
                     } else {
                         val bluetoothDeviceList = ArrayList<BluetoothDevice>()
                         disposable.add(rxBluetooth.observeDevices()
@@ -97,20 +98,24 @@ class EpsonPrinterModule(reactContext: ReactApplicationContext) :
                             .subscribe {
                                 bluetoothDeviceList.add(it)
                             })
-                        rxBluetooth.startDiscovery()
-                        Handler(Looper.getMainLooper()).postDelayed({
-                            val printerArray = Arguments.createArray()
-                            for (i in 0 until bluetoothDeviceList.size) {
-                                val bluetoothDevice = bluetoothDeviceList[i]
-                                val printerData = Arguments.createMap()
-                                printerData.putString("name", bluetoothDevice.name)
-                                printerData.putString("interface_type", "Bluetooth")
-                                printerData.putString("mac", bluetoothDevice.address)
-                                printerData.putString("target", bluetoothDevice.address)
-                                printerArray.pushMap(printerData)
-                            }
-                            promise.resolve(printerArray)
-                        }, 5000)
+                        if (!PermissionUtil.hasLocationPermission(reactApplicationContext)) {
+                            promise.reject("Discovery Error", "Please enable Location")
+                        } else {
+                            rxBluetooth.startDiscovery()
+                            Handler(Looper.getMainLooper()).postDelayed({
+                                val printerArray = Arguments.createArray()
+                                for (i in 0 until bluetoothDeviceList.size) {
+                                    val bluetoothDevice = bluetoothDeviceList[i]
+                                    val printerData = Arguments.createMap()
+                                    printerData.putString("name", bluetoothDevice.name)
+                                    printerData.putString("interface_type", "Bluetooth")
+                                    printerData.putString("mac", bluetoothDevice.address)
+                                    printerData.putString("target", bluetoothDevice.address)
+                                    printerArray.pushMap(printerData)
+                                }
+                                promise.resolve(printerArray)
+                            }, 5000)
+                        }
                     }
                 } catch (e: Exception) {
                     promise.reject("Discovery Error", e.message)
@@ -152,28 +157,31 @@ class EpsonPrinterModule(reactContext: ReactApplicationContext) :
             }
             "Bluetooth" -> {
                 val bluetoothDevice = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(target)
-                val printerInstance =
-                    PrinterInstance(reactApplicationContext, bluetoothDevice, null)
-                printerInstance.openConnection()
-                printerInstance.init()
-                if (printerInstance.isConnected) {
-                    printerInstance.sendByteData(PrintUtil.FONT_SIZE_NORMAL)
-                    printerInstance.printText(data)
-                    printerInstance.cutPaper()
-                    promise.resolve("Print success")
-                } else {
-                    promise.reject("Print Error", "Printer not connected")
+                disposable.add(Completable.fromAction {
+                    val socket =
+                        bluetoothDevice.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"))
+                    socket.connect()
+                    socket.outputStream.write(PrintUtil.FONT_SIZE_NORMAL)
+                    socket.outputStream.flush()
+                    socket.outputStream.write(data.toByteArray())
+                    socket.outputStream.flush()
+                    socket.outputStream.write("\n".toByteArray())
+                    socket.outputStream.flush()
+                    socket.outputStream.write(PrintUtil.CUT_PAPER)
+                    socket.outputStream.flush()
+                    socket.outputStream.close()
+                    socket.close()
                 }
+                    .subscribeOn(Schedulers.io())
+                    .subscribe({
+                        promise.resolve("Print success")
+                    }, {
+                        promise.reject("Print Error", it)
+                    }))
             }
             else -> {
                 promise.reject("Print Error", "Interface type not supported")
             }
         }
     }
-}
-
-object PrintUtil {
-    val FONT_SIZE_NORMAL = byteArrayOf(27, 33, 0)
-
-    val CUT_PAPER = byteArrayOf(29, 86, 66, 0)
 }
