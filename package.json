@@ -1,6 +1,6 @@
 {
   "name": "react-native-epson-printer",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "A react native module for epson printer sdk.",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
