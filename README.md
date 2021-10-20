@@ -19,7 +19,8 @@ const printers = await discover({interface_type: InterfaceType.LAN});
 // for printing
 const response = await print({
   printer: {name: 'Epson', interface_type: 'LAN', mac_address: '12:12:12:12:12:12', target: '192.168.0.100'},
-  data: 'Test Print'
+  data: 'Test Print',
+  receipt_copy_count: 1
 })
 ```
 

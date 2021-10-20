@@ -1,9 +1,8 @@
 package com.reactnativeepsonprinter
 
-import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
-import android.content.Intent
+import android.bluetooth.BluetoothSocket
 import android.os.Handler
 import android.os.Looper
 import com.epson.epos2.Epos2Exception
@@ -21,7 +20,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 class EpsonPrinterModule(reactContext: ReactApplicationContext) :
-    ReactContextBaseJavaModule(reactContext), ActivityEventListener {
+    ReactContextBaseJavaModule(reactContext) {
 
     private val disposable = CompositeDisposable()
 
@@ -40,14 +39,6 @@ class EpsonPrinterModule(reactContext: ReactApplicationContext) :
 
     override fun getName(): String {
         return "EpsonPrinter"
-    }
-
-    override fun onActivityResult(p0: Activity?, p1: Int, p2: Int, p3: Intent?) {
-
-    }
-
-    override fun onNewIntent(p0: Intent?) {
-
     }
 
     @ReactMethod
@@ -137,18 +128,21 @@ class EpsonPrinterModule(reactContext: ReactApplicationContext) :
         val interfaceType = printer?.getString("interface_type") ?: ""
         val target = printer?.getString("target") ?: ""
         val data = readableMap.getString("data") ?: ""
+        val receiptCopyCount = readableMap.getInt("receipt_copy_count")
         when (interfaceType) {
             "LAN" -> {
                 disposable.add(Completable.fromAction {
                     val socket = Socket(target, 9100)
                     socket.getOutputStream().write(PrintUtil.FONT_SIZE_NORMAL)
                     socket.getOutputStream().flush()
-                    socket.getOutputStream().write(data.toByteArray())
-                    socket.getOutputStream().flush()
-                    socket.getOutputStream().write("\n".toByteArray())
-                    socket.getOutputStream().flush()
-                    socket.getOutputStream().write(PrintUtil.CUT_PAPER)
-                    socket.getOutputStream().flush()
+                    for (i in 0..receiptCopyCount) {
+                        socket.getOutputStream().write(data.toByteArray())
+                        socket.getOutputStream().flush()
+                        socket.getOutputStream().write("\n".toByteArray())
+                        socket.getOutputStream().flush()
+                        socket.getOutputStream().write(PrintUtil.CUT_PAPER)
+                        socket.getOutputStream().flush()
+                    }
                     socket.getOutputStream().close()
                     socket.close()
                 }
@@ -162,17 +156,24 @@ class EpsonPrinterModule(reactContext: ReactApplicationContext) :
             "Bluetooth" -> {
                 val bluetoothDevice = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(target)
                 disposable.add(Completable.fromAction {
-                    val socket =
+                    var socket =
                         bluetoothDevice.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"))
-                    socket.connect()
+                    try {
+                        socket.connect()
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        socket = bluetoothDevice.javaClass.getMethod(
+                            "createRfcommSocket", Int::class.javaPrimitiveType
+                        ).invoke(bluetoothDevice, 1) as BluetoothSocket
+                        socket.connect()
+                    }
                     socket.outputStream.write(PrintUtil.FONT_SIZE_NORMAL)
-                    socket.outputStream.flush()
-                    socket.outputStream.write(data.toByteArray())
-                    socket.outputStream.flush()
-                    socket.outputStream.write("\n".toByteArray())
-                    socket.outputStream.flush()
-                    socket.outputStream.write(PrintUtil.CUT_PAPER)
-                    socket.outputStream.flush()
+                    for (i in 0..receiptCopyCount) {
+                        socket.outputStream.write(data.toByteArray())
+                        socket.outputStream.write("\n".toByteArray())
+                        socket.outputStream.write(PrintUtil.CUT_PAPER)
+                    }
+                    Thread.sleep(1000)
                     socket.outputStream.close()
                     socket.close()
                 }

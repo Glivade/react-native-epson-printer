@@ -10,6 +10,7 @@ export interface DiscoverParams {
 export interface PrintParams {
   printer: PrinterInfo,
   data: String,
+  receipt_copy_count: number,
 }
 
 export interface PrinterInfo {
