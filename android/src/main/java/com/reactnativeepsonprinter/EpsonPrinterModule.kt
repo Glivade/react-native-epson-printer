@@ -129,11 +129,18 @@ class EpsonPrinterModule(reactContext: ReactApplicationContext) :
         val target = printer?.getString("target") ?: ""
         val data = readableMap.getString("data") ?: ""
         val receiptCopyCount = readableMap.getInt("receipt_copy_count")
+        val fontSize: ByteArray? = when (readableMap.getString("font_size")) {
+            "Small" -> PrintUtil.FONT_SIZE_SMALL
+            "Regular" -> PrintUtil.FONT_SIZE_REGULAR
+            "Medium" -> PrintUtil.FONT_SIZE_MEDIUM
+            "Large" -> PrintUtil.FONT_SIZE_LARGE
+            else -> null
+        }
         when (interfaceType) {
             "LAN" -> {
                 disposable.add(Completable.fromAction {
                     val socket = Socket(target, 9100)
-                    socket.getOutputStream().write(PrintUtil.FONT_SIZE_NORMAL)
+                    socket.getOutputStream().write(fontSize)
                     socket.getOutputStream().flush()
                     for (i in 0 until receiptCopyCount) {
                         socket.getOutputStream().write(data.toByteArray())
@@ -167,7 +174,7 @@ class EpsonPrinterModule(reactContext: ReactApplicationContext) :
                         ).invoke(bluetoothDevice, 1) as BluetoothSocket
                         socket.connect()
                     }
-                    socket.outputStream.write(PrintUtil.FONT_SIZE_NORMAL)
+                    socket.outputStream.write(fontSize)
                     for (i in 0 until receiptCopyCount) {
                         socket.outputStream.write(data.toByteArray())
                         socket.outputStream.write("\n".toByteArray())

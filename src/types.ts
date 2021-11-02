@@ -11,6 +11,7 @@ export interface PrintParams {
   printer: PrinterInfo,
   data: String,
   receipt_copy_count: number,
+  font_size?: FontSize,
 }
 
 export interface PrinterInfo {
@@ -18,4 +19,11 @@ export interface PrinterInfo {
   interface_type: string;
   mac_address: string;
   target: string;
+}
+
+export enum FontSize {
+  Small = "Small",
+  Regular = "Regular",
+  Medium = "Medium",
+  Large = "Large"
 }

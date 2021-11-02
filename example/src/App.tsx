@@ -3,7 +3,7 @@ import * as React from 'react';
 import {FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {discover, print} from 'react-native-epson-printer';
 import type {PrinterInfo} from "../../src/types";
-import {InterfaceType} from "../../src/types";
+import {FontSize, InterfaceType} from "../../src/types";
 
 export default function App() {
   const [message, setMessage] = React.useState<any>();
@@ -39,7 +39,9 @@ export default function App() {
     try {
       const response = await print({
         printer,
-        data: "Test Print"
+        data: "Test Print",
+        receipt_copy_count: 1,
+        font_size: FontSize.Small
       })
       setMessage(response)
     } catch (error) {
