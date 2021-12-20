@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/black">
+
+        <TextView
+            android:id="@+id/txt_order_number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="4dp"
+            android:text="759APQ"
+            android:textColor="@android:color/white"
+            android:textSize="20sp"
+            app:fontFamily="@font/noto_sans_bold" />
+
+        <TextView
+            android:id="@+id/txt_customer_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="4dp"
+            android:layout_weight="1"
+            android:gravity="end"
+            android:text="Subash"
+            android:textColor="@android:color/white"
+            android:textSize="20sp"
+            app:fontFamily="@font/noto_sans_bold" />
+
+    </LinearLayout>
+
+    <android.widget.Space
+        android:layout_width="wrap_content"
+        android:layout_height="6dp" />
+
+    <TextView
+        android:id="@+id/txt_order_placed_at"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Placed at Nov 1, 2:41 PM"
+        android:textColor="@android:color/black"
+        android:textSize="16sp"
+        app:fontFamily="@font/noto_sans" />
+
+    <android.widget.Space
+        android:layout_width="wrap_content"
+        android:layout_height="4dp" />
+
+    <TextView
+        android:id="@+id/txt_order_due_at"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Due at Nov 1, 2:41 PM"
+        android:textColor="@android:color/black"
+        android:textSize="16sp"
+        app:fontFamily="@font/noto_sans" />
+
+    <android.widget.Space
+        android:layout_width="wrap_content"
+        android:layout_height="8dp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/black" />
+
+    <android.widget.Space
+        android:layout_width="wrap_content"
+        android:layout_height="12dp" />
+
+    <TextView
+        android:id="@+id/txt_order_type"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="PICKUP"
+        android:textColor="@android:color/black"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:fontFamily="@font/noto_sans" />
+
+    <android.widget.Space
+        android:layout_width="wrap_content"
+        android:layout_height="12dp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/black" />
+
+    <android.widget.Space
+        android:layout_width="wrap_content"
+        android:layout_height="6dp" />
+
+    <android.widget.Space
+        android:layout_width="wrap_content"
+        android:layout_height="2dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/txt_item_quantity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="1 x"
+            android:textColor="@android:color/black"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:fontFamily="@font/noto_sans" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/txt_item_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:text="3 Pound Wings"
+                android:textColor="@android:color/black"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:fontFamily="@font/noto_sans" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginBottom="2dp">
+
+                <TextView
+                    android:id="@+id/txt_modifier_quantity"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="1 x"
+                    android:textColor="@android:color/black"
+                    android:textSize="16sp"
+                    app:fontFamily="@font/noto_sans" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/txt_modifier_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:text="Amazing Honey"
+                        android:textColor="@android:color/black"
+                        android:textSize="16sp"
+                        app:fontFamily="@font/noto_sans" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/txt_item_instruction"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:text="*please add extra sauce on the side*"
+                android:textColor="@android:color/black"
+                android:textSize="16sp"
+                app:fontFamily="@font/noto_sans" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <android.widget.Space
+        android:layout_width="wrap_content"
+        android:layout_height="2dp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/black" />
+
+    <android.widget.Space
+        android:layout_width="wrap_content"
+        android:layout_height="6dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/order_total"
+            android:textColor="@android:color/black"
+            android:textSize="16sp"
+            app:fontFamily="@font/noto_sans" />
+
+        <TextView
+            android:id="@+id/txt_order_total"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="end"
+            android:text="$61.80"
+            android:textColor="@android:color/black"
+            android:textSize="16sp"
+            app:fontFamily="@font/noto_sans" />
+
+    </LinearLayout>
+
+    <android.widget.Space
+        android:layout_width="wrap_content"
+        android:layout_height="6dp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/black" />
+
+    <TextView
+        android:id="@+id/txt_thank_you"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="6dp"
+        android:gravity="center_horizontal"
+        android:text="Thank you for ordering food from Wing Station"
+        android:textColor="@android:color/black"
+        android:textSize="14sp"
+        app:fontFamily="@font/noto_sans" />
+
+</LinearLayout>

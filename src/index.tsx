@@ -1,5 +1,5 @@
 import {NativeModules, Platform} from 'react-native';
-import type {DiscoverParams, PrinterInfo, PrintParams} from "./types";
+import type {DiscoverParams, PrinterInfo, PrintImageParams, PrintParams} from "./types";
 
 const LINKING_ERROR =
   `The package 'react-native-epson-printer' doesn't seem to be linked. Make sure: \n\n` +
@@ -24,4 +24,8 @@ export function discover(params: DiscoverParams): Promise<PrinterInfo[]> {
 
 export function print(params: PrintParams): Promise<String> {
   return EpsonPrinter.print(params);
+}
+
+export function printImage(params: PrintImageParams): Promise<String> {
+  return EpsonPrinter.printImage(params);
 }

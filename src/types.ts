@@ -14,6 +14,11 @@ export interface PrintParams {
   font_size?: FontSize,
 }
 
+export interface PrintImageParams {
+  printer: PrinterInfo,
+  receipt_copy_count: number,
+}
+
 export interface PrinterInfo {
   name: string;
   interface_type: string;

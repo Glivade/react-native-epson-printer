@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import {FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import {discover, print} from 'react-native-epson-printer';
+import {discover, print, printImage} from 'react-native-epson-printer';
 import type {PrinterInfo} from "../../src/types";
 import {FontSize, InterfaceType} from "../../src/types";
 
@@ -50,6 +50,20 @@ export default function App() {
     }
   }
 
+  const sendPrintImage = async (printer: PrinterInfo) => {
+    try {
+      const response = await printImage({
+        printer,
+        receipt_copy_count: 1,
+      })
+      setMessage(response)
+    } catch (error) {
+      console.log(error)
+      // @ts-ignore
+      setMessage(error.toString())
+    }
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -69,7 +83,7 @@ export default function App() {
         data={printers}
         renderItem={({item}) => {
           return (
-            <TouchableOpacity key={item.target} onPress={() => sendPrint(item)}>
+            <TouchableOpacity key={item.target} onPress={() => sendPrintImage(item)}>
               <View style={styles.printer}>
                 <Text style={styles.printerName}>{item.name}</Text>
                 <Text style={styles.printerDesc}>{item.target}</Text>

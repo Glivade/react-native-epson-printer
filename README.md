@@ -11,14 +11,19 @@ npm install react-native-epson-printer
 ## Usage
 
 ```js
-import {discover, print} from "react-native-epson-printer";
+import { discover, print } from 'react-native-epson-printer'
 
 // for discovery
-const printers = await discover({interface_type: InterfaceType.LAN});
+const printers = await discover({ interface_type: InterfaceType.LAN })
 
 // for printing
 const response = await print({
-  printer: {name: 'Epson', interface_type: 'LAN', mac_address: '12:12:12:12:12:12', target: '192.168.0.100'},
+  printer: {
+    name: 'Epson',
+    interface_type: 'LAN',
+    mac_address: '12:12:12:12:12:12',
+    target: '192.168.0.100',
+  },
   data: 'Test Print',
   receipt_copy_count: 1,
   font_size: FontSize.Small, // Small, Regular, Medium, Large
