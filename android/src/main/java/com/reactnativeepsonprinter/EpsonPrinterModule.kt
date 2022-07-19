@@ -155,6 +155,7 @@ class EpsonPrinterModule(reactContext: ReactApplicationContext) :
                     val socket = Socket(target, 9100)
                     socket.getOutputStream().write(fontSize)
                     for (i in 0 until receiptCopyCount) {
+                        System.out.println("HelloWorld")
                         socket.getOutputStream().write(data.toByteArray(Charsets.UTF_8))
                         socket.getOutputStream().write("\n".toByteArray(Charsets.UTF_8))
                         socket.getOutputStream().write(PrintUtil.CUT_PAPER)
