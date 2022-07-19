@@ -30,6 +30,7 @@ import io.reactivex.schedulers.Schedulers
 import java.net.Socket
 import java.util.*
 import kotlin.collections.ArrayList
+import java.nio.charset.*;
 
 class EpsonPrinterModule(reactContext: ReactApplicationContext) :
     ReactContextBaseJavaModule(reactContext) {
